@@ -6,9 +6,13 @@ Vagrant.configure("2") do |config|
 
       srvdns.vm.network :private_network, ip: "10.100.7.2"
 
+      config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "../ansible-scripts/install-dns/playbooks/install-dns.yaml"
+        ansible.verbose = true
+      end
+
       srvdns.vm.provider :virtualbox do |v|
         v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
-        v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
         v.customize ["modifyvm", :id, "--memory", 1024]
         v.customize ["modifyvm", :id, "--cpus", 1]
         v.customize ["modifyvm", :id, "--name", "srv-dns-01"]

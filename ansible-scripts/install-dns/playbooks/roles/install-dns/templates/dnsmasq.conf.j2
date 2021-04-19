@@ -1,0 +1,16 @@
+domain-needed
+bogus-priv
+no-resolv
+server={{ dns_variables.dns_server1 }}
+server={{ dns_variables.dns_server2 }}
+local=/{{ dns_variables.domain }}/
+listen-address=::1,127.0.0.1,{{ dns_variables.listen_address }}
+expand-hosts
+domain=rusttools.info
+dhcp-range={{ dns_variables.dhcp_range }}
+dhcp-option=option:router,{{ dns_variables.dhcp_ip }}
+dhcp-authoritative
+dhcp-leasefile=/var/lib/dnsmasq/dnsmasq.leases
+log-facility=/var/log/dnsmasq.log
+resolv-file=/etc/dnsmasq-resolv.conf
+conf-dir=/etc/dnsmasq.d

@@ -1,1 +1,1 @@
-{"name":"generic/alpine312","version":"3.2.16","provider":"virtualbox","directory":"boxes/generic-VAGRANTSLASH-alpine312/3.2.16/virtualbox"}
+{"name":"faustobranco/alpine313","version":"1.0","provider":"virtualbox","directory":"boxes/faustobranco-VAGRANTSLASH-alpine313/1.0/virtualbox"}

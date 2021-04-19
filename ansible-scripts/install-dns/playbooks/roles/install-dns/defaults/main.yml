@@ -1,0 +1,9 @@
+---
+dns_variables:
+  domain: rusttools.info
+  dns_interface: eth1
+  dns_server1: 8.8.8.8
+  dns_server2: 8.8.4.4
+  listen_address: 10.100.7.2
+  dhcp_range: "10.100.7.10,10.100.7.100,24h"
+  dhcp_ip: 10.100.7.1

@@ -1,0 +1,74 @@
+---
+- name: alpine install-dns / main - change /etc/hosts
+  become: yes
+  ansible.builtin.lineinfile:
+    path: '/etc/hosts'
+    regexp: '.*{{ ansible_hostname }}.*'
+    line: '{{dns_variables.listen_address}}  {{ ansible_hostname }}.{{ dns_variables.domain }}   {{ ansible_hostname }}'
+    backup: yes
+
+- name: alpine install-dns / main - install requirements
+  apk:
+    name: [dnsmasq, e2fsprogs-extra, openresolv, openrc-doc]
+    state: latest
+    update_cache: true
+
+- name: alpine install-dns / main - Copy new profile.d file
+  become: yes
+  copy:
+    src: files/rusttools.sh
+    dest: /etc/profile.d/rusttools.sh
+    mode: 0644
+
+- name: alpine install-dns / main -  dnsmasq configuration file from template
+  template:
+    src: dnsmasq.conf.j2
+    dest: /etc/dnsmasq.conf
+
+- name: alpine install-dns / main - Create /var/lib/dnsmasq/
+  file:
+    path: /var/lib/dnsmasq/
+    state: directory
+
+- name: alpine install-dns / main - Copy new resolvconf.conf
+  become: yes
+  copy:
+    src: files/resolvconf.conf
+    dest: /etc/resolvconf.conf
+    mode: 0644
+
+- name: alpine install-dns / main - Copy new resolvconf.start
+  become: yes
+  copy:
+    src: files/resolvconf.start
+    dest: /etc/local.d/resolvconf.start
+    mode: 0644
+
+- name: alpine install-dns / main - Changing perm of /etc/local.d/resolvconf.start, adding +x
+  file:
+    dest: /etc/local.d/resolvconf.start
+    mode: a+x
+
+- name: alpine install-dns / main - Create dnsmasq Service
+  command: "rc-update add dnsmasq default"
+  become: true
+  become_user: root
+
+- name: alpine install-dns / main - Start dnsmasq Service
+  command: "rc-service dnsmasq restart"
+  become: true
+  become_user: root
+
+- name: alpine install-dns / main - Create local Service
+  command: "rc-update add local default"
+  become: true
+  become_user: root
+
+- name: alpine install-dns / main - Start local Service
+  command: "rc-service local start"
+  become: true
+  become_user: root
+
+- name: alpine install-dns / main - Reboot
+  reboot:
+    reboot_timeout: 3600
