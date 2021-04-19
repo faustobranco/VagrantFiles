@@ -1,0 +1,23 @@
+Vagrant.configure("2") do |config|
+  config.vm.define "srv-django-01" do |srvdjango|
+      srvdjango.vm.box = "centos/7"
+      srvdjango.vm.hostname = 'srv-django-01'
+      srvdjango.vm.synced_folder "work/", "/work"
+      config.vbguest.installer_options = { allow_kernel_upgrade: true }
+
+      srvdjango.vm.network :private_network, ip: "10.100.7.0", auto_config: false
+
+      config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "../ansible-scripts/provisioning/playbooks/provisioning.yaml"
+        ansible.verbose = true
+      end
+
+      srvdjango.vm.provider :virtualbox do |v|
+        v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+        v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+        v.customize ["modifyvm", :id, "--memory", 1024]
+        v.customize ["modifyvm", :id, "--cpus", 1]
+        v.customize ["modifyvm", :id, "--name", "srv-django-01"]
+      end
+  end
+end

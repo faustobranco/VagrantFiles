@@ -1,0 +1,1 @@
+{"rsync":{"/vagrant":{"type":"rsync","guestpath":"/vagrant","hostpath":"/Users/fausto.branco/OneDrive/GitHub/VagrantFiles/srv-minikube","disabled":false,"__vagrantfile":true,"owner":"vagrant","group":"vagrant"}},"virtualbox":{"/work":{"guestpath":"/work","hostpath":"/Users/fausto.branco/OneDrive/GitHub/VagrantFiles/srv-minikube/work","disabled":false,"__vagrantfile":true}}}

@@ -1,0 +1,6 @@
+---
+provisioning:
+  domain: rusttools.info
+  alpine_interface: eth1
+  nameserver1: "10.100.7.2"
+  nameserver2: "10.0.2.3"

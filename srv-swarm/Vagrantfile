@@ -1,0 +1,30 @@
+num_nodes=3
+base_prefix="srv-swarm-"
+
+Vagrant.configure("2") do |config|
+    #node box
+    (1..num_nodes).each do |i|
+      vm_name = "#{base_prefix}#{i.to_s.rjust(2, "0")}"
+      config.vm.define vm_name do |srvnode|
+        srvnode.vm.box = "centos/7"
+        srvnode.vm.hostname = vm_name
+        srvnode.vm.synced_folder "work/", "/work"
+        config.vbguest.installer_options = { allow_kernel_upgrade: true }
+
+        srvnode.vm.network :private_network, ip: "10.100.7.0", auto_config: false
+
+        config.vm.provision "ansible" do |ansible|
+          ansible.playbook = "../ansible-scripts/provisioning/playbooks/provisioning.yaml"
+          ansible.verbose = true
+        end
+
+        srvnode.vm.provider :virtualbox do |v|
+            v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+            v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+            v.customize ["modifyvm", :id, "--memory", 1024]
+            v.customize ["modifyvm", :id, "--cpus", 1]
+            v.customize ["modifyvm", :id, "--name", vm_name]
+        end
+      end
+    end
+  end

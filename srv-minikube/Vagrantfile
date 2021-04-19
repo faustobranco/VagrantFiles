@@ -1,0 +1,23 @@
+Vagrant.configure("2") do |config|
+  config.vm.define "srv-minikube-01" do |srvminikube|
+      srvminikube.vm.box = "centos/7"
+      srvminikube.vm.hostname = 'srv-minikube-01'
+      srvminikube.vm.synced_folder "work/", "/work"
+      config.vbguest.installer_options = { allow_kernel_upgrade: true }
+
+      srvminikube.vm.network :private_network, ip: "10.100.7.0", auto_config: false
+
+      config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "../ansible-scripts/provisioning/playbooks/provisioning.yaml"
+        ansible.verbose = true
+      end
+
+      srvminikube.vm.provider :virtualbox do |v|
+        v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+        v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+        v.customize ["modifyvm", :id, "--memory", 4096]
+        v.customize ["modifyvm", :id, "--cpus", 2]
+        v.customize ["modifyvm", :id, "--name", "srv-minikube-01"]
+      end
+  end
+end

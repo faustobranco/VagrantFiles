@@ -1,0 +1,24 @@
+Vagrant.configure("2") do |config|
+  config.vbguest.auto_update = false
+  config.vm.define "srv-ansible-01" do |srvansible|
+      srvansible.vm.box = "faustobranco/alpine313"
+      srvansible.vm.hostname = 'srv-ansible-01'
+      srvansible.vm.synced_folder "work/", "/work"
+
+      srvansible.vm.network :private_network, ip: "10.100.7.0", auto_config: false
+
+      config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "../ansible-scripts/provisioning/playbooks/provisioning.yaml"
+        ansible.verbose = true
+      end
+
+      srvansible.vm.provider :virtualbox do |v|
+        v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+        v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+        v.customize ["modifyvm", :id, "--memory", 1024]
+        v.customize ["modifyvm", :id, "--cpus", 1]
+        v.customize ["modifyvm", :id, "--name", "srv-ansible-01"]
+        v.auto_nat_dns_proxy = false
+      end
+  end
+end

@@ -1,0 +1,18 @@
+Vagrant.configure("2") do |config|
+  config.vbguest.auto_update = false
+  config.vm.define "srv-dns-01" do |srvdns|
+      srvdns.vm.box = "faustobranco/alpine313"
+      srvdns.vm.hostname = 'srv-dns-01'
+
+      srvdns.vm.network :private_network, ip: "10.100.7.2"
+
+      srvdns.vm.provider :virtualbox do |v|
+        v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+        v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+        v.customize ["modifyvm", :id, "--memory", 1024]
+        v.customize ["modifyvm", :id, "--cpus", 1]
+        v.customize ["modifyvm", :id, "--name", "srv-dns-01"]
+        v.auto_nat_dns_proxy = false
+    end
+  end
+end

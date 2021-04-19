@@ -1,0 +1,36 @@
+---
+- include: centos.yaml
+  when: ansible_os_family == 'RedHat'
+
+- include: alpine.yaml
+  when: ansible_os_family == 'Alpine'
+
+- name: main - change /etc/hosts
+  become: yes
+  ansible.builtin.lineinfile:
+    path: '/etc/hosts'
+    regexp: '.*{{ ansible_hostname }}.*'
+    line: '127.0.1.1  {{ ansible_hostname }}.{{ provisioning.domain }}   {{ ansible_hostname }}'
+    backup: yes
+
+- name: main - Copy new profile.d file
+  become: yes
+  copy:
+    src: files/rusttools.sh
+    dest: /etc/profile.d/rusttools.sh
+    mode: 0644
+
+- name: main - Configure sshd
+  lineinfile:
+    path: "/etc/ssh/sshd_config"
+    regex: "^(#)?{{item.key}}"
+    line: "{{item.key}} {{item.value}}"
+    state: present
+  loop:
+    - { key: "PermitRootLogin", value: "no" }
+    - { key: "PasswordAuthentication", value: "yes" }
+
+- name: main - Restart sshd
+  service:
+    name: sshd
+    state: restarted
