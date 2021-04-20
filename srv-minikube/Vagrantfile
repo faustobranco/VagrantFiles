@@ -9,6 +9,9 @@ Vagrant.configure("2") do |config|
 
       config.vm.provision "ansible" do |ansible|
         ansible.playbook = "../ansible-scripts/provisioning/playbooks/provisioning.yaml"
+        ansible.verbose = true
+      end
+      config.vm.provision "ansible" do |ansible|
         ansible.playbook = "../ansible-scripts/install-minikube/playbooks/install-minikube.yaml"
         ansible.verbose = true
       end
