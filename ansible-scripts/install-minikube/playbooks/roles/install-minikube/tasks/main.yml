@@ -1,0 +1,72 @@
+---
+- name: creating a docker repository
+  yum_repository:
+       description: docker-ce
+       name: docker-ce
+       baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+       gpgcheck: no
+
+- name: Add kubernete repository
+  yum_repository:
+    name: kubernetes
+    description: Kubernetes Repo
+    file: kubernetes
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+    gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    repo_gpgcheck: yes
+    gpgcheck: yes
+    enabled: yes
+
+- name: Download minikube
+  get_url:
+    url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    dest: /usr/local/bin/minikube
+    mode: a+x
+
+- name: Update environmete
+  ansible.builtin.shell: echo "export PATH="/usr/local/bin/:$PATH"" >> /etc/environment && source /etc/environment
+
+- name: Copy new kubernetes repo file
+  become: yes
+  copy:
+    src: files/kubernetes.repo
+    dest: /etc/yum.repos.d/kubernetes.repo
+    mode: 0644
+
+- name: Install a list of packages with a list variable
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - kubectl
+    - epel-release
+
+- name: Install a list of packages with a list variable
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - jq
+
+- name: Enable docker service
+  ansible.builtin.service:
+    name: docker
+    enabled: yes
+
+- name: Start docker service
+  ansible.builtin.service:
+    name: docker
+    state: started
+
+- name: vagrant user to docker group
+  ansible.builtin.user:
+    name: vagrant
+    groups: docker
+    append: yes
+
+- name: Add minikube auto-complete
+  ansible.builtin.shell: echo "source <(kubectl completion bash)" >> /home/vagrant/.bashrc
+  become: yes
